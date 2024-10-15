@@ -22,13 +22,13 @@ def query_qdrant(query, collection_name, vector_name='article', top_k=5):
         model=EMBEDDING_MODEL,
     ).data[0].embedding
 
-    query_results = qdrant.search(
+    # Reference: https://qdrant.tech/documentation/concepts/search/#search-api
+    query_results = qdrant.query_points(
         collection_name=collection_name,
-        query_vector=(
-            vector_name, embedded_query
-        ),
+        query=embedded_query,
+        using=vector_name,
         limit=top_k,
-    )
+    ).points
 
     return query_results
 

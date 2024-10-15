@@ -1,6 +1,6 @@
 import re
 
-import qdrant_client
+from qdrant_client import QdrantClient
 from openai import OpenAI
 
 from swarm import Agent
@@ -8,7 +8,7 @@ from swarm.repl import run_demo_loop
 
 # Initialize connections
 client = OpenAI()
-qdrant = qdrant_client.QdrantClient(host="localhost")
+qdrant = QdrantClient(host="localhost")
 
 # Set embedding model
 EMBEDDING_MODEL = "text-embedding-3-large"
@@ -28,11 +28,13 @@ def query_qdrant(query, collection_name, vector_name="article", top_k=5):
         .embedding
     )
 
-    query_results = qdrant.search(
+    # Reference: https://qdrant.tech/documentation/concepts/search/#search-api
+    query_results = qdrant.query_points(
         collection_name=collection_name,
-        query_vector=(vector_name, embedded_query),
+        query=embedded_query,
+        using=vector_name,
         limit=top_k,
-    )
+    ).points
 
     return query_results
 

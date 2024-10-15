@@ -2,7 +2,7 @@ import json
 import os
 
 import pandas as pd
-import qdrant_client
+from qdrant_client import QdrantClient
 from openai import OpenAI
 from qdrant_client.http import models as rest
 
@@ -37,7 +37,7 @@ for i, x in enumerate(articles):
         print(x["title"])
         print(e)
 
-qdrant = qdrant_client.QdrantClient(host="localhost")
+qdrant = QdrantClient(host="localhost")
 qdrant.get_collections()
 
 collection_name = "help_center"
@@ -49,7 +49,7 @@ article_df = pd.DataFrame(articles)
 article_df.head()
 
 # Delete the collection if it exists, so we can rewrite it changes to articles were made
-if qdrant.get_collection(collection_name=collection_name):
+if qdrant.collection_exists(collection_name):
     qdrant.delete_collection(collection_name=collection_name)
 
 # Create Vector DB collection

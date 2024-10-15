@@ -1,6 +1,8 @@
 import os
 import json
 from openai import OpenAI
+from qdrant_client import models as rest, QdrantClient
+import pandas as pd
 
 client = OpenAI()
 GPT_MODEL = 'gpt-4'
@@ -34,12 +36,8 @@ for i, x in enumerate(articles):
         print(x['title'])
         print(e)
 
-import qdrant_client
-from qdrant_client.http import models as rest
-import pandas as pd
 
-
-qdrant = qdrant_client.QdrantClient(host='localhost')
+qdrant = QdrantClient(host='localhost')
 qdrant.get_collections()
 
 collection_name = 'help_center'
@@ -51,7 +49,10 @@ article_df = pd.DataFrame(articles)
 article_df.head()
 
 # Create Vector DB collection
-qdrant.recreate_collection(
+if qdrant.collection_exists(collection_name):
+    qdrant.delete_collection(collection_name)
+
+qdrant.create_collection(
     collection_name=collection_name,
     vectors_config={
         'article': rest.VectorParams(
